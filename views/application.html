@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Bare - Start Bootstrap Template</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" type="text/css" rel="stylesheet" media="screen">
+
+</head>
+
+<body>
+
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
+    <div class="container">
+        <a class="navbar-brand" href="#">LoR Card Counter</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="about">About
+                    </a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="#">Application
+                        <span class="sr-only">(current)</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Page Content -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm text-center">
+            <form action="/application" method="post">
+                <label class="lead">Opponent Deck
+                    <input type="text" name="opponent_code">
+                </label>
+                <input type="submit" class="btn btn-primary">
+            </form>
+            <% if (opponent_arr && opponent_arr.length) { %>
+            <label>Hand Size:
+                <input type="number" id="hand_size" min="0" style="width: 100px; height: 30px" onchange=oppOdds() placeholder=1>
+            </label>
+            <ul id="opponent_list" class="list-group">
+                <% opponent_arr.forEach((item) => { %>
+                <li class="list-group-item">
+                    <div class="row align-items-center">
+                        <div class="col-sm">
+                            <img width="99" height="150" src=<%= item[0] %>>
+                            <label>Not Played
+                                <input type="number" name="opponent_count" min="0" style="width: 100px; height: 30px" onchange=oppOdds() value=<%= item[1] %>></input>
+                            </label>
+                        </div>
+                        <div class="col-sm">
+                            <object>In Hand: </object>
+                            <object name="opponent_odd"><%= (item[1]/40)*100 + '%' %></object>
+                        </div>
+                    </div>
+                </li>
+                <% }) %>
+            </ul>
+            <% } %>
+        </div>
+        <div class="col-sm text-center">
+            <form action="/application" method="post">
+                <label class="lead">Your Deck
+                    <input type="text" name="your_code">
+                </label>
+                <input type="submit" class="btn btn-primary">
+            </form>
+            <% if (your_arr && your_arr.length) { %>
+            <ul id="your_list" class="list-group">
+                <% your_arr.forEach((item) => { %>
+                <li class="list-group-item">
+                    <div class="row align-items-center">
+                        <div class="col-sm">
+                            <img width="99" height="150" src=<%= item[0] %>>
+                            <label>In Deck
+                                <input type="number" name="your_count" min="0" style="width: 100px; height: 30px" onchange=yourOdds() value=<%= item[1] %>></input>
+                            </label>
+                        </div>
+                        <div class="col-sm">
+                            <object>Next Draw: </object>
+                            <object name="your_odd"><%= (item[1]/40)*100 + '%' %></object>
+                        </div>
+                    </div>
+                </li>
+                <% }) %>
+            </ul>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap core JavaScript -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function oppOdds() {
+        let hand = document.getElementById('hand_size')
+        if (hand.value.length === 0) {
+            hand.value = 5
+        }
+        let sum = 0;
+        let count = document.getElementsByName("opponent_count")
+        let odds = document.getElementsByName("opponent_odd")
+        count.forEach(count => {
+            sum += parseInt(count.value)
+        });
+        let i = 0;
+        odds.forEach(odd => {
+            let n = (sum - count[i].value) / sum;
+            for (let j = 1; j < hand.value; j++) {
+                n *= (sum - count[i].value - j) / (sum - j)
+            }
+            n = 1 - n
+            odd.innerHTML = (n * 100).toFixed(1).toString() + '%';
+            i++;
+        });
+    }
+
+    function yourOdds() {
+        let sum = 0;
+        let count = document.getElementsByName("your_count")
+        let odds = document.getElementsByName("your_odd")
+        count.forEach(count => {
+            sum += parseInt(count.value)
+        });
+        let i = 0;
+        odds.forEach(odd => {
+            let n = count[i].value/sum
+            odd.innerHTML = (n*100).toFixed(2).toString() + '%';
+            i++;
+        });
+    }
+</script>
+
+</body>
+
+</html>
